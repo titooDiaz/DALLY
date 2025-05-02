@@ -12,6 +12,18 @@
     color: #111;
   }
 
+  body::before {
+    background: linear-gradient(-45deg, #ff8a00, #ffb347, #ffe29f, #ffd194);
+    background-size: 400% 400%;
+    animation: gradientMove 5s ease infinite;
+  }
+  
+  @keyframes gradientMove {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+  }
+
   header {
     position: absolute;
     top: 0;
@@ -24,19 +36,18 @@
     gap: 20px;
   }
 
-  .logo img {
-    width: 80px;
-    height: 80px;
-  }
-
   .title {
     font-size: 5em;
     font-weight: 700;
     letter-spacing: 10px;
   }
 
+  .top-drip svg path {
+    fill: #ff943c;
+    animation: softWave 10s ease-in-out infinite;
+  }
+
   .top-drip {
-      
     position: absolute;
     top: 0;
     left: 0;
@@ -45,20 +56,26 @@
     z-index: 1;
     overflow: hidden;
   }
-
-  .top-drip svg path {
-    fill: #ff943c;
-    animation: softWave 10s ease-in-out infinite;
+  
+@keyframes softWave {
+  0% {
+    d: path("M0,80 C360,100 720,60 1080,80 C1260,90 1440,70 1440,70 L1440,320 L0,320 Z");
   }
-
-  @keyframes softWave {
-    0%, 100% {
-      d: path("M0,160 C480,320 960,0 1440,160 L1440,320 L0,320 Z");
-    }
-    50% {
-      d: path("M0,140 C480,260 960,60 1440,140 L1440,320 L0,320 Z");
-    }
+  25% {
+    d: path("M0,85 C360,110 720,65 1080,85 C1260,95 1440,75 1440,75 L1440,320 L0,320 Z");
   }
+  50% {
+    d: path("M0,78 C360,105 720,62 1080,78 C1260,92 1440,72 1440,72 L1440,320 L0,320 Z");
+  }
+  75% {
+    d: path("M0,82 C360,108 720,68 1080,82 C1260,94 1440,78 1440,78 L1440,320 L0,320 Z");
+  }
+  100% {
+    d: path("M0,80 C360,100 720,60 1080,80 C1260,90 1440,70 1440,70 L1440,320 L0,320 Z");
+  }
+}
+
+  
 
   .rotating-white {
     position: absolute;
@@ -66,7 +83,6 @@
     left: 50%;
     width: 280px;
     height: 280px;
-    background: #fff;
     border-radius: 50% 45% 60% 40% / 40% 50% 45% 55%;
     animation: rotate 20s linear infinite;
     transform: translate(-50%, -50%);
@@ -75,8 +91,16 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+    background: #fff;
+    border: 4px solid #ffb347;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
   }
 
+  .rotating-white:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  
   .qr {
     width: 180px;
     height: 180px;
@@ -96,5 +120,5 @@
     .qr {
       width: 140px;
       height: 140px;
-    }
+    }    
   }
