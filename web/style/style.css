@@ -136,6 +136,65 @@
     to { transform: translate(-50%, -50%) rotate(360deg); }
   }
 
+
+
+
+  .root-plant {
+    position: absolute;
+    top: calc(50% + 100px); /* debajo del QR */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+    animation: growPlant 6s ease-in-out forwards;
+  }
+  
+  .root {
+    width: 6px;
+    height: 120px;
+    background: #7b3f00;
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    transform-origin: top;
+    animation: growRoot 2s ease-in-out forwards;
+  }
+  
+  .plant {
+    width: 0;
+    height: 0;
+    margin-top: -10px;
+    background: none;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 30px solid #50c878;
+    opacity: 0;
+    animation: sprout 2s ease-in-out 2s forwards;
+  }
+  
+  @keyframes growRoot {
+    0% {
+      height: 0;
+      opacity: 0;
+    }
+    100% {
+      height: 120px;
+      opacity: 1;
+    }
+  }
+  
+  @keyframes sprout {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
   @media (max-width: 768px) {
     .qr {
       width: 140px;

@@ -47,12 +47,40 @@
           animation-delay: 8s;
   left: 10vw;
   top: 85vh;
-}
-.cube:nth-child(6) {
-  -webkit-animation-delay: 10s;
-          animation-delay: 10s;
+}.cube:nth-child(6) {
+  animation-delay: 10s;
   left: 50vw;
   top: 10vh;
+}
+
+.cube:nth-child(7) {
+  animation-delay: 3s;
+  left: 15vw;
+  top: 20vh;
+}
+
+.cube:nth-child(8) {
+  animation-delay: 5s;
+  left: 65vw;
+  top: 70vh;
+}
+
+.cube:nth-child(9) {
+  animation-delay: 7s;
+  left: 85vw;
+  top: 30vh;
+}
+
+.cube:nth-child(10) {
+  animation-delay: 9s;
+  left: 35vw;
+  top: 90vh;
+}
+
+.cube:nth-child(11) {
+  animation-delay: 11s;
+  left: 5vw;
+  top: 5vh;
 }
 
 @-webkit-keyframes cube {
