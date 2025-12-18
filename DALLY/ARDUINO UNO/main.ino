@@ -1,129 +1,111 @@
-// RGB LED Pins
-const int redPin   = 9;
-const int greenPin = 10;
-const int bluePin  = 11;
+int humiditySensor = A0;
+const int pumpPin = 8;
+const int potPin = A1;
+const int buzzerPin = 7;
+boolean pupState = false;
 
-// Water Pump
-const int pumpPin  = 7;
+// RGB leds
+const int R = 9;
+const int G = 10;
+const int B = 11;
 
-// Potentiometer
-const int potPin   = A1;
-int potStatus      = 0;    // desired level (1–5)
-int lastPotValue   = 0;
-
-// Real humidity sensor
-const int moisturePin = A0;
-int sensorStatus     = 0;  // current level (1–5)
-
-// Buzzer
-const int buzzerPin = 8;
-bool farewellPlayed = false;
-
-// Timings
-unsigned long lastPotMove      = 0;
-const unsigned long potDelay   = 2000;   // 2 s without movement
-unsigned long lastBuzzer       = 0;
-const unsigned long buzzerIntrv = 10000; // 10 s
-
-// Pump state
-bool pumpOn = false;
+//potState
+int potState;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(redPin, OUTPUT);
-  pinMode(greenPin, OUTPUT);
-  pinMode(bluePin, OUTPUT);
-  pinMode(pumpPin, OUTPUT);
-  pinMode(buzzerPin, OUTPUT);
 
-  int init = analogRead(moisturePin);
-  sensorStatus = readHumidityLevel(init);
-  showHumidity(init);
+  // water pump
+  pinMode(pumpPin, OUTPUT);
+  digitalWrite(pumpPin, LOW);
+
+  pinMode(buzzerPin, OUTPUT);
+  digitalWrite(buzzerPin, LOW);
+
+  // RGB LED init
+  analogWrite(R, 0);
+  analogWrite(G, 0);
+  analogWrite(B, 255);
+
+  // init pot State
+  potState = analogRead(potPin)/5;
 }
 
 void loop() {
-  unsigned long now = millis();
+  int humidity = analogRead(humiditySensor)/205;
+  int potState = analogRead(potPin)/205;
+  
+  Serial.println(potState/205);
+  delay(100);
 
-  // Read potentiometer and detect movement
-  int potValue = analogRead(potPin);
-  if (abs(potValue - lastPotValue) > 5) {
-    lastPotMove = now;
-  }
-  lastPotValue = potValue;
-
-  // Always read sensor
-  int realValue     = analogRead(moisturePin);
-  sensorStatus      = readHumidityLevel(realValue);
-  unsigned long sincePot = now - lastPotMove;
-
-  // Choose what to display on the LED
-  if (sincePot <= potDelay) {
-    // Potentiometer mode
-    potStatus = readHumidityLevel(potValue); // ✅ BEFORE, this was only updated if moved!
-    showHumidity(potValue);
-    Serial.print("POT ("); Serial.print(potValue);
-    Serial.print(") → desired: "); Serial.println(potStatus);
-  } else {
-    // Sensor mode
-    showHumidity(realValue);
-    Serial.print("SENSOR ("); Serial.print(realValue);
-    Serial.print(") → current: "); Serial.println(sensorStatus);
-
-    if (now - lastBuzzer >= buzzerIntrv) {
-      lastBuzzer = now;
-    }
+  // water pump logic
+  if (humidity<potState and !pupState){
+    pupState = true;
+    digitalWrite(pumpPin, HIGH);
+    pupOn();
+  }else if (pupState and humidity >= potState){
+    pupState = false;
+    digitalWrite(pumpPin, LOW);
+    pupOff();
   }
 
-  // Pump control
-  if (sensorStatus > potStatus) {
-    if (!pumpOn) {
-      digitalWrite(pumpPin, HIGH);
-      pumpOn = true;
-      farewellPlayed = false;
-      Serial.println(">>> PUMP TURNED ON");
-    }
-  } else {
-    if (pumpOn) {
-      digitalWrite(pumpPin, LOW);
-      pumpOn = false;
-      Serial.println(">>> PUMP TURNED OFF");
-      if (!farewellPlayed) {
-        playFarewell();
-        farewellPlayed = true;
-      }
-    }
+  //potState logic
+  setColor(potState);
+}
+
+
+// potState logic
+void setColor(int state) {
+  switch (state) {
+  
+    case 0: // red
+      analogWrite(R, 255);
+      analogWrite(G, 0);
+      analogWrite(B, 0);
+      break;
+  
+    case 1: // orange
+      analogWrite(R, 255);
+      analogWrite(G, 120);
+      analogWrite(B, 0);
+      break;
+  
+    case 2: // green
+      analogWrite(R, 0);
+      analogWrite(G, 255);
+      analogWrite(B, 0);
+      break;
+  
+    case 3: //blue
+      analogWrite(R, 0);
+      analogWrite(G, 0);
+      analogWrite(B, 255);
+      break;
+  
+    case 4: // white
+      analogWrite(R, 255);
+      analogWrite(G, 255);
+      analogWrite(B, 255);
+      break;
+  
+    default: // Seguridad
+      analogWrite(R, 0);
+      analogWrite(G, 0);
+      analogWrite(B, 0);
+      break;
   }
 }
 
-// Corrected levels to avoid duplicate level 1
-int readHumidityLevel(int v) {
-  if (v <= 300)      return 1;
-  else if (v <= 450) return 2;  // ✅ before this also returned 1
-  else if (v <= 600) return 3;
-  else if (v <= 750) return 4;
-  else               return 5;
+void pupOn() {
+  tone(buzzerPin, 40);  // G4
+  delay(300);
+  noTone(buzzerPin);
 }
 
-// Without annoying delay
-void showHumidity(int v) {
-  int r, g, b;
-  if (v <= 300)      { r=100; g=200; b=150; }
-  else if (v <= 450) { r=0;   g=0;   b=255; }
-  else if (v <= 600) { r=0;   g=255; b=0;   }
-  else if (v <= 750) { r=255; g=255; b=0;   }
-  else               { r=255; g=0;   b=0;   }
-
-  analogWrite(redPin,   r);
-  analogWrite(greenPin, g);
-  analogWrite(bluePin,  b);
-
-  // ✅ delay(10) removed: not necessary, could freeze loop
-}
-
-// Melody
-void playFarewell() {
-  tone(buzzerPin, 660); delay(400);
-  tone(buzzerPin, 440); delay(400);
-  tone(buzzerPin, 330); delay(500);
+void pupOff() {
+  tone(buzzerPin, 988);  // B5
+  delay(150);
+  tone(buzzerPin, 1175); // D6
+  delay(150);
   noTone(buzzerPin);
 }
