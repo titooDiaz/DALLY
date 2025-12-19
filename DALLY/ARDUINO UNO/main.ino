@@ -11,6 +11,7 @@ const int B = 11;
 
 //potState
 int potState;
+int lastPotValue;
 
 void setup() {
   Serial.begin(9600);
@@ -50,7 +51,15 @@ void loop() {
   }
 
   //potState logic
-  setColor(potState);
+  if (potChange(lastPotValue, analogRead(potPin))){
+    setColor(potState);
+    delay(500);
+  }else{
+    setColor(humidity);
+  }
+
+
+  lastPotValue = analogRead(potPin);
 }
 
 
@@ -58,13 +67,13 @@ void loop() {
 void setColor(int state) {
   switch (state) {
   
-    case 0: // red
+    case 4: // red
       analogWrite(R, 255);
       analogWrite(G, 0);
       analogWrite(B, 0);
       break;
   
-    case 1: // orange
+    case 3: // orange
       analogWrite(R, 255);
       analogWrite(G, 120);
       analogWrite(B, 0);
@@ -76,13 +85,13 @@ void setColor(int state) {
       analogWrite(B, 0);
       break;
   
-    case 3: //blue
+    case 1: //blue
       analogWrite(R, 0);
       analogWrite(G, 0);
       analogWrite(B, 255);
       break;
   
-    case 4: // white
+    case 0: // white
       analogWrite(R, 255);
       analogWrite(G, 255);
       analogWrite(B, 255);
@@ -94,6 +103,13 @@ void setColor(int state) {
       analogWrite(B, 0);
       break;
   }
+}
+
+boolean potChange(int last, int now){
+  if (abs(last-now)>5){
+    return true;
+  }
+  return false;
 }
 
 void pupOn() {
